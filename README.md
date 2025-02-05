@@ -1,12 +1,9 @@
-# QF devnet faucet
+# QF demo dApp | Calculator
 
 ## Features
 
-- Step-by-step wallet setup guide
-- Polkadot.js extension integration
-- Token request system
-- Clean, intuitive UI
-- Mobile responsive design
+- Polkadot.js extension integration for signing PolkaVM pre-uploaded
+smartcontract
 
 ## Setup
 

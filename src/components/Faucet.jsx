@@ -6,8 +6,6 @@ import { Keyring } from '@polkadot/keyring';
 import { useRef } from 'react';
 
 
-const FAUCET_AMOUNT = '20000000000';
-
 const RPC_URL = 'wss://dev.qfnetwork.xyz/socket';
 
 const Step = ({ number, title, children, isOpen, toggle }) => (
@@ -35,6 +33,7 @@ const Step = ({ number, title, children, isOpen, toggle }) => (
 
 const LoadFileStep = () => {
 
+  // Uploaded PVM SmartContract
   const address = "0x248e8fa75194f1dd671bdb220b59936a13fed06f8bd29ed1e5e06e6de2b974e6"
 
   const contract = useRef();
@@ -73,30 +72,27 @@ const LoadFileStep = () => {
 
 
   const execute = (a, b, op) => async () => {
+    // Run qfPolkaVM Transaction :
     const tx = await api.tx.qfPolkaVM.execute(address, a, b, op);
 
-    const unsub = await tx.signAndSend(account.addressData.address, { signer: account.signer }, async (res) => {
-      const { status, events } = res;
+    const unsub = await tx.signAndSend(account.addressData.address,
+                { signer: account.signer },
+                async (res) => {
+                    const { status, events } = res;
+                    const result =
+                        await api.query.qfPolkaVM.calculationResult(
+                                      [address, account.addressData.address]);
 
-      const result = await api.query.qfPolkaVM.calculationResult([address, account.addressData.address]);
-
-      const logs = events?.map(({ event }) => `Event: ${event.section}.${event.method}`)
-      logs.push('-------------------------------')
-      logs.push(`TRANSACTION RESULT: ${result}`)
-      setLogs(logs);
-
-      if (status.isInBlock) {
-        setStatus(`Загружено в блок: ${status.asInBlock.toString()}`);
-        // unsub();
-      }
-
-
-    });
-
-
-
+                    const logs = events?.map(({ event }) => `Event: ${event.section}.${event.method}`);
+                    logs.push('-------------------------------');
+                    logs.push(`TRANSACTION RESULT: ${result}`);
+                    setLogs(logs);
+                    if (status.isInBlock) {
+                      setStatus(`In block: ${status.asInBlock.toString()}`);
+                    }
+                }
+    );
   }
-
 
   const connectWallet = async () => {
     try {
@@ -111,7 +107,7 @@ const LoadFileStep = () => {
           ...injected,
           addressData: accounts[0]
         });
-        setStatus('Wallet connected!');
+        setStatus(`Wallet connected: ${accounts[0].address}`);
       } else {
         setStatus('No accounts found. Please create one first.');
       }
@@ -157,7 +153,7 @@ const Faucet = () => {
   return (
     <div className="relative p-6 pt-10 sm:pt-10 pb-20">
       <div className="text-center relative z-[1] mb-8 max-w-2xl mx-auto">
-        <h1 className="text-3xl sm:text-5xl font-bold mb-2">QF dApp</h1>
+        <h1 className="text-3xl sm:text-5xl font-bold mb-2">QF | dApp demo | Calculator</h1>
       </div>
 
       <div className="space-y-4 relative z-[1] max-w-2xl mx-auto">
